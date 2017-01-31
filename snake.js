@@ -1,3 +1,6 @@
+//Main Code taken from http://thecodeplayer.com/walkthrough/html5-game-tutorial-make-a-snake-game-using-html5-canvas-jquery
+//Edited by Joshua Sosa to include a two player mode, custom colors, and new collisions.
+
 $(document).ready(function(){
 	//Canvas stuff
 	var canvas = $("#canvas")[0];
@@ -16,34 +19,18 @@ $(document).ready(function(){
 	var snake2Color = "Red";
 	var foodColor = "Green";
 	var textColor = "Black";
-	var players = 2;
-
-    //Client Variables
-	var serverIP;
-	var serverPort;
-	var conn; //This is the WebSocket
-	var player1ID = 1; //Placeholder
-	var player2ID = 2; 
+    var players = 1;
 	
-
-
 	//Lets create the snake now
 	var snake_array1; //an array of cells to make up the snake1
 	var snake_array2; //an array of cells to make up the snake2
   
 	function init()
 	{
-        //Connect to the server
-        //conn = new WebSocket("ws://" + serverIP + serverPort) // SUMMARY: The connection is made through the WebSocket, then the two IDs are sent in order. After that, every time the score is updated, both scores are sent to the server in ending.
-        //conn.send(player1ID); //send Player1's ID
-        //conn.send(player2ID); //send Player2's ID <--- UNCOMMENT THESE WHEN SERVER IS SET UP
-
-        //Now play the Snake game
 		d1 = "right"; //default direction
 		if(players == 2 ){
         d2 = "down";
         create_snakes();
-        create_food();
         create_food();
       } else {
 		create_snake();
@@ -201,11 +188,6 @@ $(document).ready(function(){
             var score2_text = "Score 2: " + score2;
             ctx.fillText(score2_text, 120, h-5);
         }
-
-        conn.send(score1);
-        conn.send(score2); // Send both scores to server
-
-        
 	}
 	
 	//Lets first create a generic function to paint cells
@@ -261,14 +243,5 @@ $(document).ready(function(){
 		}
 		//The snake is now keyboard controllable
 	});
-
-
-
-
-
-
-
-	conn.close(); //Close connection
-
 		
 });
