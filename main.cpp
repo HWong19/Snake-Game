@@ -12,8 +12,8 @@ using namespace std;
 webSocket server;
 GameState gameState;
 vector<int> clientIDs;
-int player1 = -1;
-int player2 = -1;
+string player1;
+string player2;
 int turn = 1;
 bool isAlreadyConnected = false;
 
@@ -56,15 +56,5 @@ void closeHandler(int clientID)
 
 void messageHandler(int clientID, string message);
 {
-	if (player1 == -1)
-	{
-		player1 = (int)message;
-	}
-	else if (player2 == -1)
-	{
-		player2 = (int)message;
-	}
-	else
-	{
-	}
+	printf(message);
 }
