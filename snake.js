@@ -1,5 +1,5 @@
 //Main Code taken from http://thecodeplayer.com/walkthrough/html5-game-tutorial-make-a-snake-game-using-html5-canvas-jquery
-//Edited by Joshua Sosa to include a two player mode, custom colors, and new collisions.
+//Edited by Joshua Sosa to include a two player mode, custom colors, new collisions, and send scoring messages to log and server.
 
 $(document).ready(function(){
 	//Canvas stuff
@@ -19,23 +19,21 @@ $(document).ready(function(){
 	var snake2Color = "Red";
 	var foodColor = "Green";
 	var textColor = "Black";
-    var players = 1;
-	
+	var players = 1;
+
 	//Lets create the snake now
 	var snake_array1; //an array of cells to make up the snake1
 	var snake_array2; //an array of cells to make up the snake2
   
 	function init()
 	{
+        //Now play the Snake game
 		d1 = "right"; //default direction
 		if(players == 2 ){
-        d2 = "down";
-        create_snakes();
-        create_food();
-      } else {
-		create_snake();
+			d2 = "down";
+		}
+		create_snakes();
 		create_food(); //Now we can see the food particle
-      }
 		//finally lets display the score
 		score1 = 0;
         score2 = 0;
@@ -46,17 +44,6 @@ $(document).ready(function(){
 		game_loop = setInterval(paint, 60);
 	}
 	init();
-	
-	function create_snake()
-	{
-		var length = 5; //Length of the snake
-		snake_array1 = []; //Empty array to start with
-		for(var i = length-1; i>=0; i--)
-		{
-			//This will create a horizontal snake starting from the top left
-			snake_array1.push({x: i, y:0});
-		}
-	}
   
 	function create_snakes()
 	{
@@ -127,7 +114,7 @@ $(document).ready(function(){
 			//Lets organize the code a bit now.
 			return;
 		}
-        if(nx2 == -1 || nx2 == w/cw || ny2 == -1 || ny2 == h/cw || check_collision(nx2, ny2, snake_array2, snake_array1))
+        if(players == 2 && (nx2 == -1 || nx2 == w/cw || ny2 == -1 || ny2 == h/cw || check_collision(nx2, ny2, snake_array2, snake_array1)))
 		{
 			//restart game
 			init();
@@ -143,8 +130,10 @@ $(document).ready(function(){
         if(nx1 == food.x && ny1 == food.y){
 			tail1 = {x: nx1, y: ny1};
 			score1++;
+			log( 'Player 1 Score: ' + score1 );
 			//Create new food
 			create_food();
+			send( score1.toString() );
 		}else{
 			tail1 = snake_array1.pop(); //pops out the last cell
 			tail1.x = nx1; tail1.y = ny1;
@@ -152,18 +141,21 @@ $(document).ready(function(){
 		//The snake can now eat the food.
 		snake_array1.unshift(tail1); //puts back the tail as the first cell
         var tail2;
-        if(nx2 == food.x && ny2 == food.y){
+        if(players == 2 && nx2 == food.x && ny2 == food.y){
 			tail2 = {x: nx2, y: ny2};
 			score2++;
+			log( 'Player 2 Score: ' + score2 );
 			//Create new food
 			create_food();
-		}else{
+			send( score2.toString() );
+		}else if (players == 2) {
 			tail2 = snake_array2.pop(); //pops out the last cell
 			tail2.x = nx2; tail2.y = ny2;
-		}
 		//The snake can now eat the food.
+		}
+		if (players == 2) {
 		snake_array2.unshift(tail2); //puts back the tail as the first cell
-			
+		}
         var c;
 		for(var i = 0; i < snake_array1.length; i++)
 		{
@@ -171,13 +163,14 @@ $(document).ready(function(){
 			//Lets paint 10px wide cells
 			paint_cell(c.x, c.y, snake1Color);
 		}
+		if (players == 2) {
         for(i = 0; i < snake_array2.length; i++)
 		{
 			c = snake_array2[i];
 			//Lets paint 10px wide cells
 			paint_cell(c.x, c.y, snake2Color);
 		}
-		
+		}
 		//Lets paint the food
 		paint_cell(food.x, food.y, foodColor);
 		//Lets paint the score
@@ -187,7 +180,7 @@ $(document).ready(function(){
         if(players == 2) {
             var score2_text = "Score 2: " + score2;
             ctx.fillText(score2_text, 120, h-5);
-        }
+        }  
 	}
 	
 	//Lets first create a generic function to paint cells
@@ -212,6 +205,7 @@ $(document).ready(function(){
 		}
 		
 		//This loop will check if the provided arrays contain a matching x/y coordinate
+		if (players == 2) {
         for (i = 0; i < array1.length; i++) {
             for(var j = 0; j < array2.length; j++){
                 if (array1[i].x == array2[j].x && array1[i].y == array2[j].y){
@@ -219,6 +213,7 @@ $(document).ready(function(){
                 }
             }
         }
+		}
 		return false;
 	}
 	
@@ -243,5 +238,14 @@ $(document).ready(function(){
 		}
 		//The snake is now keyboard controllable
 	});
+
+
+
+
+
+
+
+	conn.close(); //Close connection
+
 		
 });
