@@ -50,11 +50,11 @@ void openHandler(int clientID)
 void closeHandler(int clientID)
 {
 	isAlreadyConnected = false;
+	printf("Client has disconnected.");
 }
 
 void messageHandler(int clientID, string message)
 {
-	//cout << "Received message: " << message;
 	if (message.find("score1:") != string::npos)
 	{
 		gameState.setP1Score(message.substr(7));
@@ -64,5 +64,15 @@ void messageHandler(int clientID, string message)
 	{
 		gameState.setP2Score(message.substr(7));
 		gameState.printScore();
+	}
+
+	else if (message.find("Player1:") != string::npos)
+	{
+		gameState.setP1Name(message.substr(8));
+	}
+
+	else if (message.find("Player2:") != string::npos)
+	{
+		gameState.setP2Name(message.substr(8));
 	}
 }

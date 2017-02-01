@@ -1,7 +1,7 @@
 //Main Code taken from http://thecodeplayer.com/walkthrough/html5-game-tutorial-make-a-snake-game-using-html5-canvas-jquery
 //Edited by Joshua Sosa to include a two player mode, custom colors, new collisions, and send scoring messages to log and server.
 
-$(document).ready(function(){
+
 	//Canvas stuff
 	var canvas = $("#canvas")[0];
 	var ctx = canvas.getContext("2d");
@@ -43,8 +43,9 @@ $(document).ready(function(){
 		//every 60ms
 		if(typeof game_loop != "undefined") clearInterval(game_loop);
 		game_loop = setInterval(paint, 60);
+		
 	}
-	init();
+
   
 	function create_snakes()
 	{
@@ -251,4 +252,3 @@ $(document).ready(function(){
 	conn.close(); //Close connection
 
 		
-});

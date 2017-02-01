@@ -47,6 +47,9 @@
 			Server.bind('open', function() {
                 document.getElementById("cntBtn").disabled = true;
 				log( "Connected." );
+				init();
+				send("Player1:" + document.getElementById("player1ID").value);
+				send("Player2:" + document.getElementById("player2ID").value);
 			});
 
 			//OH NOES! Disconnection occurred.

@@ -7,6 +7,16 @@ GameState::GameState()
 	p2Score = "0";
 }
 
+string GameState::getP1Name()
+{
+	return p1Name;
+}
+
+string GameState::getP2Name()
+{
+	return p2Name;
+}
+
 string GameState::getP1Score()
 {
 	return p1Score;
@@ -17,6 +27,15 @@ string GameState::getP2Score()
 	return p2Score;
 }
 
+void GameState::setP1Name(string name)
+{
+	p1Name = name;
+}
+
+void GameState::setP2Name(string name)
+{
+	p2Name = name;
+}
 
 void GameState::setP1Score(string score)
 {
@@ -30,5 +49,5 @@ void GameState::setP2Score(string score)
 
 void GameState::printScore()
 {
-	cout << "Player 1: " << p1Score << endl << "Player 2: " << p2Score << endl << endl;
+	cout << "Player 1 (" << p1Name << "): " << p1Score << endl << "Player 2 (" << p2Name << "): " << p2Score << endl << endl;
 }
