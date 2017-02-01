@@ -1,7 +1,6 @@
 //Main Code taken from http://thecodeplayer.com/walkthrough/html5-game-tutorial-make-a-snake-game-using-html5-canvas-jquery
 //Edited by Joshua Sosa to include a two player mode, custom colors, new collisions, and send scoring messages to log and server.
 
-
 	//Canvas stuff
 	var canvas = $("#canvas")[0];
 	var ctx = canvas.getContext("2d");
@@ -20,6 +19,8 @@
 	var foodColor = "Green";
 	var textColor = "Black";
 	var players = 2;
+	var playerIsDead = false;
+	var game_loop;
 
 
 	//Lets create the snake now
@@ -41,7 +42,7 @@
 		
 		//Lets move the snake now using a timer which will trigger the paint function
 		//every 60ms
-		if(typeof game_loop != "undefined") clearInterval(game_loop);
+		if(game_loop != "undefined") clearInterval(game_loop);
 		game_loop = setInterval(paint, 60);
 		
 	}
@@ -96,14 +97,16 @@
 		//These were the position of the head cell.
 		//We will increment it to get the new head position
 		//Lets add proper direction based movement now
-		if(d1 == "right") nx1++;
-		else if(d1 == "left") nx1--;
-		else if(d1 == "up") ny1--;
-		else if(d1 == "down") ny1++;
-		if(d2 == "right") nx2++;
-		else if(d2 == "left") nx2--;
-		else if(d2 == "up") ny2--;
-		else if(d2 == "down") ny2++;
+		if(!playerIsDead){
+			if(d1 == "right") nx1++;
+			else if(d1 == "left") nx1--;
+			else if(d1 == "up") ny1--;
+			else if(d1 == "down") ny1++;
+			if(d2 == "right") nx2++;
+			else if(d2 == "left") nx2--;
+			else if(d2 == "up") ny2--;
+			else if(d2 == "down") ny2++;
+		}
       
 		//Lets add the game over clauses now
 		//This will restart the game if the snake hits the wall
@@ -111,17 +114,15 @@
 		//Now if the head of the snake bumps into its body, the game will restart
 		if(nx1 == -1 || nx1 == w/cw || ny1 == -1 || ny1 == h/cw || check_collision(nx1, ny1, snake_array1, snake_array2))
 		{
-			//restart game
-			init();
-			//Lets organize the code a bit now.
-			return;
+			//pause game
+			playerIsDead = true;
+			clearInterval(game_loop);
 		}
         if(players == 2 && (nx2 == -1 || nx2 == w/cw || ny2 == -1 || ny2 == h/cw || check_collision(nx2, ny2, snake_array2, snake_array1)))
 		{
-			//restart game
-			init();
-			//Lets organize the code a bit now.
-			return;
+			//pause game
+			playerIsDead = true;
+			clearInterval(game_loop);
 		}
 		
 		//Lets write the code to make the snakes eat the food
@@ -177,12 +178,19 @@
 		paint_cell(food.x, food.y, foodColor);
 		//Lets paint the score
 		ctx.fillStyle = textColor;
-		var score1_text = "Score 1: " + score1;
-		ctx.fillText(score1_text, 5, h-5);
-        if(players == 2) {
-            var score2_text = "Score 2: " + score2;
-            ctx.fillText(score2_text, 120, h-5);
-        }  
+		if(!playerIsDead) {
+			ctx.font = "20px Arial";
+			var score1_text = "Score 1: " + score1;
+			ctx.fillText(score1_text, 5, h-5);
+			if(players == 2) {
+				var score2_text = "Score 2: " + score2;
+				ctx.fillText(score2_text, 120, h-5);
+			}
+		}else{
+			ctx.font = "30px Arial";
+			ctx.fillText("Player Died",5,h-35);
+			ctx.fillText("Press the 'r' key to reset",5,h-5);
+		}
 		
 
 	}
@@ -241,14 +249,8 @@
 			else if(key == "83" && d1 != "up") d1 = "down";
 		}
 		//The snake is now keyboard controllable
+		if(playerIsDead && key == "82"){
+			playerIsDead = false;
+			init();
+		}
 	});
-
-
-
-
-
-
-
-	conn.close(); //Close connection
-
-		
