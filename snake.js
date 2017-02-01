@@ -21,6 +21,7 @@ $(document).ready(function(){
 	var textColor = "Black";
 	var players = 2;
 
+
 	//Lets create the snake now
 	var snake_array1; //an array of cells to make up the snake1
 	var snake_array2; //an array of cells to make up the snake2
@@ -133,7 +134,7 @@ $(document).ready(function(){
 			log( 'Player 1 Score: ' + score1 );
 			//Create new food
 			create_food();
-			send( score1.toString() );
+			send( "score1:" + score1.toString() );
 		}else{
 			tail1 = snake_array1.pop(); //pops out the last cell
 			tail1.x = nx1; tail1.y = ny1;
@@ -147,7 +148,7 @@ $(document).ready(function(){
 			log( 'Player 2 Score: ' + score2 );
 			//Create new food
 			create_food();
-			send( score2.toString() );
+			send( "score2:" + score2.toString() );
 		}else if (players == 2) {
 			tail2 = snake_array2.pop(); //pops out the last cell
 			tail2.x = nx2; tail2.y = ny2;
@@ -181,6 +182,8 @@ $(document).ready(function(){
             var score2_text = "Score 2: " + score2;
             ctx.fillText(score2_text, 120, h-5);
         }  
+		
+
 	}
 	
 	//Lets first create a generic function to paint cells

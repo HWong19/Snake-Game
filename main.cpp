@@ -28,7 +28,7 @@ void periodicHandler();
 int main(int argc, char *argv[])
 {
 	int port = PORT_NUMBER;
-	
+
 	server.setOpenHandler(openHandler);
 	server.setCloseHandler(closeHandler);
 	server.setMessageHandler(messageHandler);
@@ -45,16 +45,24 @@ void openHandler(int clientID)
 		server.wsClose(clientID);
 	}
 	isAlreadyConnected = true;
-	clientIDs = server.getClientIDs();
 }
 
 void closeHandler(int clientID)
 {
 	isAlreadyConnected = false;
-	clientIDs = server.getClientIDs();
 }
 
-void messageHandler(int clientID, string message);
+void messageHandler(int clientID, string message)
 {
-	printf(message);
+	//cout << "Received message: " << message;
+	if (message.find("score1:") != string::npos)
+	{
+		gameState.setP1Score(message.substr(7));
+		gameState.printScore();
+	}
+	else if (message.find("score2:") != string::npos)
+	{
+		gameState.setP2Score(message.substr(7));
+		gameState.printScore();
+	}
 }
