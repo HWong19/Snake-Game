@@ -1,6 +1,3 @@
-//Main Code taken from http://thecodeplayer.com/walkthrough/html5-game-tutorial-make-a-snake-game-using-html5-canvas-jquery
-//Edited by Joshua Sosa to include a two player mode, custom colors, new collisions, and send scoring messages to log and server.
-
 	//Canvas stuff
 	var canvas = $("#canvas")[0];
 	var ctx = canvas.getContext("2d");
@@ -9,8 +6,6 @@
 	
 	//Lets save the cell width in a variable for easy control
 	var cw = 10;
-	var d1;
-    var d2;
 	var food;
 	var score1;
     var score2;
@@ -18,63 +13,91 @@
 	var snake2Color = "Red";
 	var foodColor = "Green";
 	var textColor = "Black";
-	var players = 2;
 	var playerIsDead = false;
 	var game_loop;
-
+	
+	var playerNumber; //Int to indicate which player this client is controlling
+	var playerName; //Name of the player so it can't be changed
 
 	//Lets create the snake now
-	var snake_array1; //an array of cells to make up the snake1
-	var snake_array2; //an array of cells to make up the snake2
+	var snake1; //an array of cells to make up the snake1
+	var snake2; //an array of cells to make up the snake2
+	var snake1Length;
+	var snake2Length;
+	var d;
   
 	function init()
 	{
-        //Now play the Snake game
-		d1 = "right"; //default direction
-		if(players == 2 ){
-			d2 = "down";
-		}
-		create_snakes();
-		create_food(); //Now we can see the food particle
-		//finally lets display the score
-		score1 = 0;
-        score2 = 0;
-		
 		//Lets move the snake now using a timer which will trigger the paint function
 		//every 60ms
 		if(game_loop != "undefined") clearInterval(game_loop);
 		game_loop = setInterval(paint, 60);
-		
-	}
-
-  
-	function create_snakes()
-	{
-		var length1 = 5; //Length of the snake1
-		var length2 = 5; //Length of the snake2
-		snake_array1 = []; //Empty array to start snake1 with
-		snake_array2 = []; //Empty array to start snake2 with
-		for(var i = length1-1; i>=0; i--)
-		{
-			//This will create a horizontal snake starting from the top left
-			snake_array1.push({x: i+1, y:0});
-		}
-        for(i = length2-1; i>=0; i--)
-		{
-			//This will create a horizontal snake starting from the top left
-			snake_array2.push({x: 0, y:i});
-		}
 	}
 	
-	//Lets create the food now
-	function create_food()
+	function setScore1(num)
 	{
-		food = {
-			x: Math.round(Math.random()*(w-cw)/cw), 
-			y: Math.round(Math.random()*(h-cw)/cw)
-		};
-		//This will create a cell with x/y between 0-44
-		//Because there are 45(450/10) positions accross the rows and columns
+		score1 = num;
+	}
+	
+	function setScore2(num)
+	{
+		score2 = num;
+	}
+	
+	function setPlayerNumber(num)
+	{
+		playerNumber = num;
+	}
+	
+	function setPlayerName(str)
+	{
+		playerName = str;
+	}
+  
+  	function setSnakeDirection(str)
+	{
+		d = str;
+	}
+  
+  	function setSnake1Length(num)
+	{
+		snake1Length = num;
+	}
+	
+	function setSnake2Length(num)
+	{
+		snake2Length = num;
+	}
+	
+	function setSnake1(res)
+	{
+		snake1 = [];
+		//This will create a horizontal snake starting from the top left
+		for(var i = snake1Length*2+1; i>=3; i-=2) //>=3 b/c res[0],res[1] are not coordinates
+			snake1.push({x: res[i-1], y: res[i]});
+	}
+	
+	function setSnake2(res)
+	{
+		snake2 = [];
+		//This will create a horizontal snake starting from the top left
+		for(var i = snake2Length*2+1; i>=3; i-=2) //>=3 b/c res[0],res[1] are not coordinates
+			snake2.push({x: res[i-1], y: res[i]});
+	}
+	
+	function setFood(res)
+	{
+		food = { x: res[1], y: res[2] };
+	}
+	
+	function setPlayerDied()
+	{
+		playerIsDead = true;
+	}
+	
+	function getPlayerName()
+	{
+		return playerName;
 	}
 	
 	//Lets paint the snake now
@@ -87,112 +110,37 @@
 		ctx.strokeStyle = "black";
 		ctx.strokeRect(0, 0, w, h);
 		
-		//The movement code for the snake to come here.
-		//The logic is simple
-		//Pop out the tail cell and place it infront of the head cell
-		var nx1 = snake_array1[0].x;
-		var ny1 = snake_array1[0].y;
-        var nx2 = snake_array2[0].x;
-		var ny2 = snake_array2[0].y;
-		//These were the position of the head cell.
-		//We will increment it to get the new head position
-		//Lets add proper direction based movement now
-		if(!playerIsDead){
-			if(d1 == "right") nx1++;
-			else if(d1 == "left") nx1--;
-			else if(d1 == "up") ny1--;
-			else if(d1 == "down") ny1++;
-			if(d2 == "right") nx2++;
-			else if(d2 == "left") nx2--;
-			else if(d2 == "up") ny2--;
-			else if(d2 == "down") ny2++;
-		}
-      
-		//Lets add the game over clauses now
-		//This will restart the game if the snake hits the wall
-		//Lets add the code for body collision
-		//Now if the head of the snake bumps into its body, the game will restart
-		if(nx1 == -1 || nx1 == w/cw || ny1 == -1 || ny1 == h/cw || check_collision(nx1, ny1, snake_array1, snake_array2))
+		//Lets paint the snakes
+        var cell;
+		for(var i = 0; i < snake1.length; i++)
 		{
-			//pause game
-			playerIsDead = true;
-			clearInterval(game_loop);
+			cell = snake1[i];
+			//Lets paint 10px wide cells
+			paint_cell(cell.x, cell.y, snake1Color);
 		}
-        if(players == 2 && (nx2 == -1 || nx2 == w/cw || ny2 == -1 || ny2 == h/cw || check_collision(nx2, ny2, snake_array2, snake_array1)))
+        for(i = 0; i < snake2.length; i++)
 		{
-			//pause game
-			playerIsDead = true;
-			clearInterval(game_loop);
+			cell = snake2[i];
+			//Lets paint 10px wide cells
+			paint_cell(cell.x, cell.y, snake2Color);
 		}
 		
-		//Lets write the code to make the snakes eat the food
-		//The logic is simple
-		//If the new head position matches with that of the food,
-		//Create a new head instead of moving the tail
-        var tail1;
-        if(nx1 == food.x && ny1 == food.y){
-			tail1 = {x: nx1, y: ny1};
-			score1++;
-			log( 'Player 1 Score: ' + score1 );
-			//Create new food
-			create_food();
-			send( "score1:" + score1.toString() );
-		}else{
-			tail1 = snake_array1.pop(); //pops out the last cell
-			tail1.x = nx1; tail1.y = ny1;
-		}
-		//The snake can now eat the food.
-		snake_array1.unshift(tail1); //puts back the tail as the first cell
-        var tail2;
-        if(players == 2 && nx2 == food.x && ny2 == food.y){
-			tail2 = {x: nx2, y: ny2};
-			score2++;
-			log( 'Player 2 Score: ' + score2 );
-			//Create new food
-			create_food();
-			send( "score2:" + score2.toString() );
-		}else if (players == 2) {
-			tail2 = snake_array2.pop(); //pops out the last cell
-			tail2.x = nx2; tail2.y = ny2;
-		//The snake can now eat the food.
-		}
-		if (players == 2) {
-		snake_array2.unshift(tail2); //puts back the tail as the first cell
-		}
-        var c;
-		for(var i = 0; i < snake_array1.length; i++)
-		{
-			c = snake_array1[i];
-			//Lets paint 10px wide cells
-			paint_cell(c.x, c.y, snake1Color);
-		}
-		if (players == 2) {
-        for(i = 0; i < snake_array2.length; i++)
-		{
-			c = snake_array2[i];
-			//Lets paint 10px wide cells
-			paint_cell(c.x, c.y, snake2Color);
-		}
-		}
 		//Lets paint the food
 		paint_cell(food.x, food.y, foodColor);
+		
 		//Lets paint the score
 		ctx.fillStyle = textColor;
 		if(!playerIsDead) {
 			ctx.font = "20px Arial";
 			var score1_text = "Score 1: " + score1;
 			ctx.fillText(score1_text, 5, h-5);
-			if(players == 2) {
-				var score2_text = "Score 2: " + score2;
-				ctx.fillText(score2_text, 120, h-5);
-			}
+			var score2_text = "Score 2: " + score2;
+			ctx.fillText(score2_text, 120, h-5);
 		}else{
 			ctx.font = "30px Arial";
 			ctx.fillText("Player Died",5,h-35);
 			ctx.fillText("Press the 'r' key to reset",5,h-5);
 		}
-		
-
 	}
 	
 	//Lets first create a generic function to paint cells
@@ -203,54 +151,24 @@
 		ctx.strokeStyle = "white";
 		ctx.strokeRect(x*cw, y*cw, cw, cw);
 	}
-	
-	//This function will check if the provided arrays contain a matching x/y coordinate
-	// or if the given x/y coordinates exist in an array of cells or not
-	function check_collision(x, y, array1, array2)
-	{
-		//This loop will check if the provided x/y coordinates exist
-		//in an array of cells or not
-		for(var i = 0; i < array1.length; i++)
-		{
-			if(array1[i].x == x && array1[i].y == y)
-               return true;
-		}
-		
-		//This loop will check if the provided arrays contain a matching x/y coordinate
-		if (players == 2) {
-        for (i = 0; i < array1.length; i++) {
-            for(var j = 0; j < array2.length; j++){
-                if (array1[i].x == array2[j].x && array1[i].y == array2[j].y){
-                    return true;
-                }
-            }
-        }
-		}
-		return false;
-	}
+
 	
 	//Lets add the keyboard controls now
 	$(document).keydown(function(e){
 		var key = e.which;
-		//We will add another clause to prevent reverse gear
-		if(key == "37" && d1 != "right") d1 = "left";
-		else if(key == "38" && d1 != "down") d1 = "up";
-		else if(key == "39" && d1 != "left") d1 = "right";
-		else if(key == "40" && d1 != "up") d1 = "down";
-		if(players == 2){
-			if(key == "65" && d2 != "right") d2 = "left";
-			else if(key == "87" && d2 != "down") d2 = "up";
-			else if(key == "68" && d2 != "left") d2 = "right";
-			else if(key == "83" && d2 != "up") d2 = "down";
-		} else {
-			if(key == "65" && d1 != "right") d1 = "left";
-			else if(key == "87" && d1 != "down") d1 = "up";
-			else if(key == "68" && d1 != "left") d1 = "right";
-			else if(key == "83" && d1 != "up") d1 = "down";
-		}
-		//The snake is now keyboard controllable
+		//We will add the d1 clauses to prevent reverse gear
+		//These statements make the snake controllable via the arrow keys and wasd
+		var oldD = d;
+		if((key == "37" || key == "65")&& d != "right") d = "left";
+		else if((key == "38" || key == "87") && d != "down") d = "up";
+		else if((key == "39" || key == "68") && d != "left") d = "right";
+		else if((key == "40" || key == "83") && d != "up") d = "down";
+		if(oldD != d)
+			send("Direction:" + d);
+		
+		//Statement to reset the game
 		if(playerIsDead && key == "82"){
 			playerIsDead = false;
-			init();
+			send("Reset");
 		}
 	});

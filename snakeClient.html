@@ -7,8 +7,7 @@
 
         #ip {line-height:20px}
         #port {line-height:20px}
-		#player1ID {line-height:20px}
-		#player2ID {line-height:20px}
+		#playerName {line-height:20px}
 		#body {max-width:800px;margin:auto}
 		#log {width:450px;height:40px}
 	</style>
@@ -32,24 +31,13 @@
         function connect(){
             log('Connecting...');
 			Server = new FancyWebSocket('ws://' + document.getElementById('ip').value + ':' + document.getElementById('port').value);
-			
-			
-			$('#message').keypress(function(e) {
-				if ( e.keyCode == 13 && this.value ) {
-					log( 'You: ' + this.value );
-					send( this.value );
-
-					$(this).val('');
-				}
-			});
 
 			//Let the user know we're connected
 			Server.bind('open', function() {
                 document.getElementById("cntBtn").disabled = true;
 				log( "Connected." );
-				init();
-				send("Player1:" + document.getElementById("player1ID").value);
-				send("Player2:" + document.getElementById("player2ID").value);
+				setPlayerName(document.getElementById("playerName").value)
+				send("Name:" + getPlayerName());
 			});
 
 			//OH NOES! Disconnection occurred.
@@ -59,7 +47,31 @@
 			});
 
 			//Log any messages sent from server
+			//Message Sample = Food,x,y
 			Server.bind('message', function( payload ) {
+				var res = payload.split(",");
+				if(res[0] == 'PlayerNumber')
+					setPlayerNumber(res[1]);
+				else if(res[0] == 'Food')
+					setFood(res);
+				else if (res[0] == 'Snake1'){
+					setSnake1Length(res[1]);
+					setSnake1(res);
+				}else if (res[0] == 'Snake2'){
+					setSnake2Length(res[1]);
+					setSnake2(res);
+				}else if (res[0] == 'Scores'){
+					setScore1(res[1]);
+					setScore2(res[2]);
+				}else if(res[0] == 'Directions'){
+					if(playerNumber == 1)
+						setSnakeDirection(res[1]);
+					else if(playerNumber == 2)
+						setSnakeDirection(res[2]);
+				}else if(res[0] == 'Init')
+					init();
+				else if(res[0] == 'PlayerDied')
+					setPlayerDied();
 				log( payload );
 			});
 
@@ -71,11 +83,10 @@
 
 <body>
 	<div id='body'>
-        Server ip: <input type='text' id='ip' name='ip'>
-        Server port: <input type='text' id='port' name='port'><br/>
-		Player 1 ID: <input type='text' id='player1ID' name='player1ID'>
-		Player 2 ID: <input type='text' id='player2ID' name='player2ID'>
-        <button type="button" id='cntBtn' onclick="connect();">Connect</button>
+        Server ip: <input type='text' id='ip' name='ip' value='169.234.115.157'>
+        Server port: <input type='text' id='port' name='port' value='12345'><br/>
+		Player name: <input type='text' id='playerName' name='playerName' value='PlayerName'>
+        <button type="button" id='cntBtn' onclick="connect();">Connect</button><br/>
 		<textarea id='log' name='log' readonly='readonly'></textarea><br/>
 		<!-- Canvas for Snake Game -->
 		<canvas id="canvas" width="450" height="450"></canvas>
