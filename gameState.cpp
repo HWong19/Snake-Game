@@ -25,11 +25,21 @@ string GameState::getP1Score()
 	return os.str();
 }
 
+string GameState::getP1Name()
+{
+	return p1Name;
+}
+
 string GameState::getP2Score()
 {
 	ostringstream os;
 	os << p2Score;
 	return os.str();
+}
+
+string GameState::getP2Name()
+{
+	return p2Name;
 }
 
 string GameState::getP1Direction()
@@ -184,12 +194,24 @@ void GameState::moveSnakes()
 		{
 			//pause game
 			playerIsDead = true;
+			cout << "Player 1 Died." << endl;
+			if(p1Score > p2Score)
+				cout << "Player 1 Wins!" << endl;
+			else if (p2Score > p1Score)
+				cout << "Player 2 Wins!" << endl;
+			else cout << "Draw!" << endl;
 		}
         if(nx2 == -1 || nx2 == screenWidth/cellWidth || ny2 == -1 || ny2 == screenHeight/cellHeight 
 			|| checkCollision(nx2, ny2, snake2, snake1))
 		{
 			//pause game
 			playerIsDead = true;
+			cout << "Player 2 Died." << endl;
+			if(p1Score > p2Score)
+				cout << "Player 1 Wins!" << endl;
+			else if (p2Score > p1Score)
+				cout << "Player 2 Wins!" << endl;
+			else cout << "Draw!" << endl;
 		}
 
 		//This code is to make the snakes eat the food
@@ -200,6 +222,7 @@ void GameState::moveSnakes()
         if(nx1 == food.first && ny1 == food.second){
 			tail = make_pair(nx1, ny1);
 			p1Score++;
+			printScore();
 			setSnake1Length(snake1.size()+1);
 			//Create new food
 			createFood();
@@ -214,6 +237,7 @@ void GameState::moveSnakes()
 		if(nx2 == food.first && ny2 == food.second){
 			tail = make_pair(nx2, ny2);
 			p2Score++;
+			printScore();
 			setSnake2Length(snake2.size()+1);
 			//Create new food
 			createFood();

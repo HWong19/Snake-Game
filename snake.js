@@ -1,3 +1,4 @@
+
 	//Canvas stuff
 	var canvas = $("#canvas")[0];
 	var ctx = canvas.getContext("2d");
@@ -17,7 +18,8 @@
 	var game_loop;
 	
 	var playerNumber; //Int to indicate which player this client is controlling
-	var playerName; //Name of the player so it can't be changed
+	var player1Name = ""; //Name of the player so it can't be changed
+	var player2Name = ""; //Name of the player so it can't be changed
 
 	//Lets create the snake now
 	var snake1; //an array of cells to make up the snake1
@@ -28,8 +30,8 @@
   
 	function init()
 	{
-		//Lets move the snake now using a timer which will trigger the paint function
-		//every 60ms
+		playerIsDead = false;
+		//Lets move the snake now using a timer which will trigger the paint function every 60ms
 		if(game_loop != "undefined") clearInterval(game_loop);
 		game_loop = setInterval(paint, 60);
 	}
@@ -49,9 +51,14 @@
 		playerNumber = num;
 	}
 	
-	function setPlayerName(str)
+	function setPlayer1Name(str)
 	{
-		playerName = str;
+		player1Name = str;
+	}
+	
+	function setPlayer2Name(str)
+	{
+		player2Name = str;
 	}
   
   	function setSnakeDirection(str)
@@ -95,9 +102,13 @@
 		playerIsDead = true;
 	}
 	
-	function getPlayerName()
+	function getPlayer1Name()
 	{
-		return playerName;
+		return player1Name;
+	}
+	function getPlayer2Name()
+	{
+		return player2Name;		
 	}
 	
 	//Lets paint the snake now
@@ -132,10 +143,10 @@
 		ctx.fillStyle = textColor;
 		if(!playerIsDead) {
 			ctx.font = "20px Arial";
-			var score1_text = "Score 1: " + score1;
+			var score1_text = player2Name + "'s Score 2:" + score2;
 			ctx.fillText(score1_text, 5, h-5);
-			var score2_text = "Score 2: " + score2;
-			ctx.fillText(score2_text, 120, h-5);
+			var score2_text = player1Name + "'s Score 1: " + score1;
+			ctx.fillText(score2_text, 5, h-25);
 		}else{
 			ctx.font = "30px Arial";
 			ctx.fillText("Player Died",5,h-35);

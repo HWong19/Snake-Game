@@ -36,8 +36,7 @@
 			Server.bind('open', function() {
                 document.getElementById("cntBtn").disabled = true;
 				log( "Connected." );
-				setPlayerName(document.getElementById("playerName").value)
-				send("Name:" + getPlayerName());
+				send("Name:" + document.getElementById("playerName").value);
 			});
 
 			//OH NOES! Disconnection occurred.
@@ -68,6 +67,11 @@
 						setSnakeDirection(res[1]);
 					else if(playerNumber == 2)
 						setSnakeDirection(res[2]);
+				}else if (res[0] == "PlayerName") {
+					if(res[1] == '1')
+						setPlayer1Name(res[2]);
+					else(res[1] == '2')
+						setPlayer2Name(res[2]);
 				}else if(res[0] == 'Init')
 					init();
 				else if(res[0] == 'PlayerDied')
