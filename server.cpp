@@ -1,9 +1,34 @@
+/* Team Members
+Snake Game for ICS 167 Milestone 2
+
+Andrew Chen, 28676301, andretc1@uci.edu
+Contributions: Pair Programming setting up initial server game logic sending and receiving information for game
+
+David Kang, dhkang2@uci.edu, 49958769
+Contributions: None
+
+Harry Wong, cheukhw@uci.edu, 66209666
+Contributions: Pair Programming setting up initial server game logic sending and receiving information for game
+
+Joshua Sosa, jhsosa@uci.edu, 84232577
+Contributions: Pair Programming setting up initial server game logic sending and receiving information for game. Setup server to accept two clients, Record player namees based on clientID, Take an inputted port number. Translated the game logic into C++ and implemented it within the server. Updated game logic to report winner server side. Implemented the appropriate sending and receiving for game information from the game logic. This includes sending scores, player numbers, sending player names, sending new coordinates, and sending reset information to all clients. Also, set up the periodic handler to handle the game loop and sending updates to make gameplay smooth. Also updated client to show player names infront of scores.
+
+Please note that we are giving credit to the original sources of the Chatroom Example and Snake Game tutorial followed.
+// Main code for Chatroom Demo taken from 
+// http://www.ics.uci.edu/~rkwang/Winter_2017_ICS167/project.html
+// Main code/tutorial for Snake game taken from
+// http://thecodeplayer.com/walkthrough/html5-game-tutorial-make-a-snake-game-using-html5-canvas-jquery
+*/
+
 #include <stdlib.h>
 #include <iostream>
 #include <ostream>
 #include <string>
 #include <sstream>
 #include <time.h>
+#include <queue>
+#include <cstdlib>
+#include <sys/timeb.h>
 #include "websocket.h"
 #include "port.h"
 #include "gameState.h"
@@ -17,6 +42,7 @@ map<int, string> clientNames;
 int turn = 0; //periodicHandler calls about 1 per msec
 int msec = 40; //Speed of updates
 bool clientsAlreadyConnected = false;
+std::priority_queue<time_t> q;
 
 
 void openHandler(int clientID);
@@ -27,6 +53,8 @@ void updateClientSnakes(pair<string, string> snakes);
 void periodicHandler();
 void printMessage(string message);
 void startGame();
+int getMilliCount();
+int getMilliSpan(int nTimeStart);
 
 
 
@@ -135,13 +163,14 @@ void periodicHandler() {
 		updateClients("PlayerDied,");
 		server.setPeriodicHandler(NULL);
 	}
-	++turn;
-	if (turn >= msec){
-		turn = 0;
+	static int next = getMilliCount() + 100;
+    int current = getMilliCount();
+    if (current >= next){
 		gameState.moveSnakes();
 		updateClientSnakes(gameState.getSnakes());
 		updateClients("Scores," + gameState.getP1Score() + "," + gameState.getP2Score());
 		updateClients(gameState.getFood());
+		next = getMilliCount() + 100;
 	}
 }
 
@@ -175,3 +204,19 @@ void startGame()
 		server.setPeriodicHandler(periodicHandler);
 	}
 }
+
+int getMilliCount() 
+{
+		timeb tb;
+		ftime(&tb);
+		int nCount = tb.millitm + (tb.time & 0xfffff) * 1000;
+		return nCount;
+	}
+
+int getMilliSpan(int nTimeStart)
+{
+		int nSpan = getMilliCount() - nTimeStart;
+		if(nSpan < 0)
+			nSpan += 0x100000 * 1000;
+		return nSpan;
+	}
