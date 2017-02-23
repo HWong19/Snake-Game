@@ -5,7 +5,7 @@ Notes: There are pre-entered information in the IP, Port, and PlayerName boxes b
 
 /* Team Members
 
-Andrew Chen, 28676301, andretc1@uci.edu
+Andrew Chen, andretc1@uci.edu, 28676301
 Contributions: 
 
 David Kang, dhkang2@uci.edu, 49958769
