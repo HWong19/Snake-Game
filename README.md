@@ -4,8 +4,10 @@ Snake Game for ICS 167 Milestone 3
 Notes: There are pre-entered information in the IP, Port, and PlayerName boxes but this can be changed by just clicking the box and editting it. It's this way to make testing quicker.
 
 /* Team Members
+
 Andrew Chen, 28676301, andretc1@uci.edu
 Contributions: 
+
 David Kang, dhkang2@uci.edu, 49958769
 Contributions: 
 
