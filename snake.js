@@ -1,3 +1,27 @@
+/* 
+Snake Game for ICS 167 Milestone 3
+
+Notes: There are pre-entered information in the IP, Port, and PlayerName boxes but this can be changed by just clicking the box and editting it. It's this way to make testing quicker.
+
+Andrew Chen, 28676301, andretc1@uci.edu
+Contributions: 
+
+David Kang, dhkang2@uci.edu, 49958769
+Contributions: 
+
+Harry Wong, cheukhw@uci.edu, 66209666
+Contributions: 
+
+Joshua Sosa, jhsosa@uci.edu, 84232577
+Contributions: Modified Periodic Handler to a millisecond count from a count of calls. Setup timestamp priority queues for packets. Added timestamp response functionality on server. Added request timestamp functionality for client. Added Artificial latency with a random normal distribution generator to sent messages. Set up time_loop to request timeStamps every 500ms on client.
+
+Please note that we are giving credit to the original sources of the Chatroom Example and Snake Game tutorial followed.
+// Main code for Chatroom Demo taken from 
+// http://www.ics.uci.edu/~rkwang/Winter_2017_ICS167/project.html
+// Main code/tutorial for Snake game taken from
+// http://thecodeplayer.com/walkthrough/html5-game-tutorial-make-a-snake-game-using-html5-canvas-jquery
+//Timing Code for milliseconds for use in periodic handler taken from http://www.firstobject.com/getmillicount-milliseconds-portable-c++.htm
+*/
 
 	//Canvas stuff
 	var canvas = $("#canvas")[0];
@@ -16,6 +40,7 @@
 	var textColor = "Black";
 	var playerIsDead = false;
 	var game_loop;
+	var time_loop;
 	
 	var playerNumber; //Int to indicate which player this client is controlling
 	var player1Name = ""; //Name of the player so it can't be changed
@@ -34,6 +59,8 @@
 		//Lets move the snake now using a timer which will trigger the paint function every 60ms
 		if(game_loop != "undefined") clearInterval(game_loop);
 		game_loop = setInterval(paint, 60);
+		if(time_loop != "undefined") clearInterval(time_loop);
+		time_loop = setInterval(timeStamp, 500);
 	}
 	
 	function setScore1(num)
@@ -143,7 +170,7 @@
 		ctx.fillStyle = textColor;
 		if(!playerIsDead) {
 			ctx.font = "20px Arial";
-			var score1_text = player2Name + "'s Score 2:" + score2;
+			var score1_text = player2Name + "'s Score 2: " + score2;
 			ctx.fillText(score1_text, 5, h-5);
 			var score2_text = player1Name + "'s Score 1: " + score1;
 			ctx.fillText(score2_text, 5, h-25);
@@ -152,6 +179,10 @@
 			ctx.fillText("Player Died",5,h-35);
 			ctx.fillText("Press the 'r' key to reset",5,h-5);
 		}
+	}
+
+	function timeStamp(){
+		send("Timestamp:")
 	}
 	
 	//Lets first create a generic function to paint cells

@@ -1,3 +1,29 @@
+<!--
+Snake Game for ICS 167 Milestone 3
+
+Notes: There are pre-entered information in the IP, Port, and PlayerName boxes but this can be changed by just clicking the box and editting it. It's this way to make testing quicker.
+
+Andrew Chen, 28676301, andretc1@uci.edu
+Contributions: 
+
+David Kang, dhkang2@uci.edu, 49958769
+Contributions: 
+
+Harry Wong, cheukhw@uci.edu, 66209666
+Contributions: 
+
+Joshua Sosa, jhsosa@uci.edu, 84232577
+Contributions: Modified Periodic Handler to a millisecond count from a count of calls. Setup timestamp priority queues for packets. Added timestamp response functionality on server. Added request timestamp functionality for client. Added Artificial latency with a random normal distribution generator to sent messages. Set up time_loop to request timeStamps every 500ms on client.
+
+Please note that we are giving credit to the original sources of the Chatroom Example and Snake Game tutorial followed.
+// Main code for Chatroom Demo taken from 
+// http://www.ics.uci.edu/~rkwang/Winter_2017_ICS167/project.html
+// Main code/tutorial for Snake game taken from
+// http://thecodeplayer.com/walkthrough/html5-game-tutorial-make-a-snake-game-using-html5-canvas-jquery
+//Timing Code for milliseconds for use in periodic handler taken from http://www.firstobject.com/getmillicount-milliseconds-portable-c++.htm
+-->
+
+
 <!doctype html>
 <html>
 <head>
@@ -49,7 +75,14 @@
 			//Message Sample = Food,x,y
 			Server.bind('message', function( payload ) {
 				var res = payload.split(",");
-				if(res[0] == 'PlayerNumber')
+				//Show the estimation on the screen. in the draw screen?
+				//Use the NTP latency estimation method from class lecture
+				//Please note we are not piggybacking the timestamp on other messages.
+				//This is because the server has to respond to timestamp requests .
+				if(res[0] == 'Timestamp'){
+					//estimateLatency(res[1]); //Function not implemented yet
+					log("Timestamp Recv: " + res[1]);
+				}else if(res[0] == 'PlayerNumber')
 					setPlayerNumber(res[1]);
 				else if(res[0] == 'Food')
 					setFood(res);
@@ -72,16 +105,15 @@
 						setPlayer1Name(res[2]);
 					else(res[1] == '2')
 						setPlayer2Name(res[2]);
-				}else if(res[0] == 'Init')
+				}else if(res[0] == 'Init'){
 					init();
-				else if(res[0] == 'PlayerDied')
+				}else if(res[0] == 'PlayerDied')
 					setPlayerDied();
 				log( payload );
 			});
-
+			
 			Server.connect();
         }
-
 	</script>
 </head>
 
