@@ -17,7 +17,7 @@ Harry Wong, cheukhw@uci.edu, 66209666
 Contributions: 
 
 Joshua Sosa, jhsosa@uci.edu, 84232577
-Contributions: Modified Periodic Handler to a millisecond count from a count of calls. Setup timestamp priority queues for packets. Added timestamp response functionality on server. Added request timestamp (time_loop) functionality for client. Added artificial latency in milliseconds to sent and received packets with a random uniform distribution integer generator. Implemented latency calculation and display on client. Modified client logging. 
+Contributions: Modified Periodic Handler to a millisecond count from a count of calls. Setup timestamp priority queues for packets. Added timestamp response functionality on server. Added request timestamp (time_loop) functionality for client. Added artificial latency in milliseconds to sent and received packets with a random uniform distribution integer generator.
 
 Please note that we are giving credit to the original sources of the Chatroom Example and Snake Game tutorial followed.
 // Main code for Chatroom Demo taken from 
