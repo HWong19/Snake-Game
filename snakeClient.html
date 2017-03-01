@@ -1,9 +1,14 @@
 <!--
+/*
 Snake Game for ICS 167 Milestone 3
 
 Notes: There are pre-entered information in the IP, Port, and PlayerName boxes but this can be changed by just clicking the box and editting it. It's this way to make testing quicker.
 
-Andrew Chen, 28676301, andretc1@uci.edu
+Milestone Notes: We add an random artificial latency from 1 to 150ms to sent and received packets. We calculate the latency with the NTP equations from class ((B-A)-(Y-X))/2. The average latencies are between 1 and 300ms. Sometimes we see negative latencies, however, this is when a rollback occurs due to out of order packets. The out of order packets also make the game a little wonky. For example, when the game ends (player dies) the snakes will move backwards to a position closer to the starting position. We do a timestamp request for a latency estimation every second. You can see these estimations on screen and each client's log.
+
+Team Members
+
+Andrew Chen, andretc1@uci.edu, 28676301
 Contributions: 
 
 David Kang, dhkang2@uci.edu, 49958769
@@ -13,7 +18,7 @@ Harry Wong, cheukhw@uci.edu, 66209666
 Contributions: 
 
 Joshua Sosa, jhsosa@uci.edu, 84232577
-Contributions: Modified Periodic Handler to a millisecond count from a count of calls. Setup timestamp priority queues for packets. Added timestamp response functionality on server. Added request timestamp functionality for client. Added Artificial latency with a random normal distribution generator to sent messages. Set up time_loop to request timeStamps every 500ms on client.
+Contributions: Modified Periodic Handler to a millisecond count from a count of calls. Setup timestamp priority queues for packets. Added timestamp response functionality on server. Added request timestamp (time_loop) functionality for client. Added artificial latency in milliseconds to sent and received packets with a random uniform distribution integer generator. Implemented latency calculation and display on client. Modified client logging. 
 
 Please note that we are giving credit to the original sources of the Chatroom Example and Snake Game tutorial followed.
 // Main code for Chatroom Demo taken from 
@@ -21,6 +26,8 @@ Please note that we are giving credit to the original sources of the Chatroom Ex
 // Main code/tutorial for Snake game taken from
 // http://thecodeplayer.com/walkthrough/html5-game-tutorial-make-a-snake-game-using-html5-canvas-jquery
 //Timing Code for milliseconds for use in periodic handler taken from http://www.firstobject.com/getmillicount-milliseconds-portable-c++.htm
+*/
+
 -->
 
 
@@ -80,13 +87,13 @@ Please note that we are giving credit to the original sources of the Chatroom Ex
 				//Please note we are not piggybacking the timestamp on other messages.
 				//This is because the server has to respond to timestamp requests .
 				if(res[0] == 'Timestamp'){
-					//estimateLatency(res[1]); //Function not implemented yet
-					log("Timestamp Recv: " + res[1]);
+					calcLatency(res[1], res[2]); // X, Y
 				}else if(res[0] == 'PlayerNumber')
 					setPlayerNumber(res[1]);
-				else if(res[0] == 'Food')
+				else if(res[0] == 'Food'){
 					setFood(res);
-				else if (res[0] == 'Snake1'){
+					log( payload );
+				}else if (res[0] == 'Snake1'){
 					setSnake1Length(res[1]);
 					setSnake1(res);
 				}else if (res[0] == 'Snake2'){
@@ -95,6 +102,7 @@ Please note that we are giving credit to the original sources of the Chatroom Ex
 				}else if (res[0] == 'Scores'){
 					setScore1(res[1]);
 					setScore2(res[2]);
+					log( payload );
 				}else if(res[0] == 'Directions'){
 					if(playerNumber == 1)
 						setSnakeDirection(res[1]);
@@ -105,11 +113,15 @@ Please note that we are giving credit to the original sources of the Chatroom Ex
 						setPlayer1Name(res[2]);
 					else(res[1] == '2')
 						setPlayer2Name(res[2]);
+					log( payload );
 				}else if(res[0] == 'Init'){
 					init();
-				}else if(res[0] == 'PlayerDied')
+					log( payload );
+				}else if(res[0] == 'PlayerDied'){
 					setPlayerDied();
-				log( payload );
+					log( payload );
+				}
+				//log( payload );
 			});
 			
 			Server.connect();
