@@ -1,23 +1,23 @@
 /*
-Snake Game for ICS 167 Milestone 3
+Snake Game for ICS 167 Milestone 4
 
 Notes: There are pre-entered information in the IP, Port, and PlayerName boxes but this can be changed by just clicking the box and editting it. It's this way to make testing quicker.
 
-Milestone Notes: We add an random artificial latency from 1 to 150ms to sent and received packets. We calculate the latency with the NTP equations from class ((B-A)-(Y-X))/2. The average latencies are between 1 and 300ms. Sometimes we see negative latencies, however, this is when a rollback occurs due to out of order packets. The out of order packets also make the game a little wonky. For example, when the game ends (player dies) the snakes will move backwards to a position closer to the starting position. We do a timestamp request for a latency estimation every second. You can see these estimations on screen and each client's log.
+Milestone Notes: We implemented a rollback and local prediction in an attempt to mitigate latency. This worked well in reducing jitter and lag. However, it is not perfect it does a good job at preserving user intentions, final outcome, and joint plausibility.
 
 Team Members
 
 Andrew Chen, andretc1@uci.edu, 28676301
-Contributions: 
+Contributions: Brainstorming
 
 David Kang, dhkang2@uci.edu, 49958769
-Contributions: 
+Contributions: None
 
 Harry Wong, cheukhw@uci.edu, 66209666
-Contributions: 
+Contributions: Brainstorming
 
 Joshua Sosa, jhsosa@uci.edu, 84232577
-Contributions: Modified Periodic Handler to a millisecond count from a count of calls. Setup timestamp priority queues for packets. Added timestamp response functionality on server. Added request timestamp (time_loop) functionality for client. Added artificial latency in milliseconds to sent and received packets with a random uniform distribution integer generator. Implemented latency calculation and display on client. Modified client logging. 
+Contributions: Implemented game logic in javascript for local prediction. Handled server and client communication for rollbacks and updating clients of other clients local predictions. Overall, handled latency mitigation with local prediction and rollbacks.
 
 Please note that we are giving credit to the original sources of the Chatroom Example and Snake Game tutorial followed.
 // Main code for Chatroom Demo taken from 
@@ -26,6 +26,7 @@ Please note that we are giving credit to the original sources of the Chatroom Ex
 // http://thecodeplayer.com/walkthrough/html5-game-tutorial-make-a-snake-game-using-html5-canvas-jquery
 //Timing Code for milliseconds for use in periodic handler taken from http://www.firstobject.com/getmillicount-milliseconds-portable-c++.htm
 */
+
 
 
 
@@ -58,11 +59,12 @@ bool playerDeadPacketSent = false;
 priority_queue<Packet, deque<Packet>, order> packetsRecv;
 priority_queue<Packet, deque<Packet>, order> packetsSend;
 default_random_engine generator;
-uniform_int_distribution<int> distribution(1,150); //Between 1 and 150 because game_loop time is 150
+uniform_int_distribution<int> distribution(0,101); //Between 1 and 150 because game_loop time is 150
 
 void openHandler(int clientID);
 void closeHandler(int clientID);
 void messageHandler(int clientID, string message);
+void updateClient(int clientID, string msg);
 void updateClients(string msg);
 void updateClientSnakes(pair<string, string> snakes);
 void periodicHandler();
@@ -148,9 +150,13 @@ void analyzeMessage(int clientID, string message) {
 		if(clientID == 0){
 			gameState.setP1Direction(message.substr(10));
 			printMessage("Player1 Direction Changed to " + message.substr(10));
+			updateClient(0, "DirectionP1," + gameState.getP1Direction());
+			updateClient(-1, "Rollback," + gameState.getSnakes().first);
 		} else if(clientID == 1){
 			gameState.setP2Direction(message.substr(10));
 			printMessage("Player2 Direction Changed to " + message.substr(10));
+			updateClient(1, "DirectionP2," + gameState.getP2Direction());
+			updateClient(-1, "Rollback," + gameState.getSnakes().second);
 		}
 	}else if (message.find("Name:") != string::npos)
 	{
@@ -171,6 +177,14 @@ void analyzeMessage(int clientID, string message) {
 		gameState.resetGame();
 		startGame();
 	}
+}
+void updateClient(int clientID, string msg) 
+{
+	vector<int> clientIDs = server.getClientIDs();
+    for (int i = 0; i < clientIDs.size(); i++){
+        if (clientIDs[i] != clientID)
+            server.wsSend(clientIDs[i], msg);
+    }
 }
 
 void updateClients(string msg) 
@@ -200,10 +214,10 @@ void updateClientSnakes(pair<string, string> snakes)
 
 /* called once per select() loop */
 void periodicHandler() {
-	static int next = getMilliCount() + 150;
+	static int next = getMilliCount() + 200;
 	int current = getMilliCount();
 	if(current >= next) {
-		next = getMilliCount() + 150;
+		next = getMilliCount() + 200;
 		if(gameState.getPlayerStatus()){
 			if(!playerDeadPacketSent){
 				updateClients("PlayerDied,");
