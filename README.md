@@ -77,3 +77,31 @@ Please note that we are giving credit to the original sources of the Chatroom Ex
 //Timing Code for milliseconds for use in periodic handler taken from http://www.firstobject.com/getmillicount-milliseconds-portable-c++.htm
 */
 
+/*
+Snake Game for ICS 167 Milestone 4
+
+Notes: There are pre-entered information in the IP, Port, and PlayerName boxes but this can be changed by just clicking the box and editting it. It's this way to make testing quicker.
+
+Milestone Notes: We implemented a rollback and local prediction in an attempt to mitigate latency. This worked well in reducing jitter and lag. However, it is not perfect it does a good job at preserving user intentions, final outcome, and joint plausibility.
+
+Team Members
+
+Andrew Chen, andretc1@uci.edu, 28676301
+Contributions: Brainstorming
+
+David Kang, dhkang2@uci.edu, 49958769
+Contributions: None
+
+Harry Wong, cheukhw@uci.edu, 66209666
+Contributions: Brainstorming
+
+Joshua Sosa, jhsosa@uci.edu, 84232577
+Contributions: Implemented game logic in javascript for local prediction. Handled server and client communication for rollbacks and updating clients of other clients local predictions. Overall, handled latency mitigation with local prediction and rollbacks.
+
+Please note that we are giving credit to the original sources of the Chatroom Example and Snake Game tutorial followed.
+// Main code for Chatroom Demo taken from 
+// http://www.ics.uci.edu/~rkwang/Winter_2017_ICS167/project.html
+// Main code/tutorial for Snake game taken from
+// http://thecodeplayer.com/walkthrough/html5-game-tutorial-make-a-snake-game-using-html5-canvas-jquery
+//Timing Code for milliseconds for use in periodic handler taken from http://www.firstobject.com/getmillicount-milliseconds-portable-c++.htm
+*/
